@@ -24,7 +24,6 @@ def getlottoresults() -> dict:
 def checknumbers(results:dict) -> None:
     winningnumberscount = 0
     ournumbers:list[int] = getlottonumbers()
-    #real numbers - [12,14,20,22,27,34]
     numbersdata = results['lotto']['lottoWinningNumbers']
     winningnumbers = []
     for result in numbersdata['numbers']:
@@ -87,9 +86,8 @@ def checknumbers(results:dict) -> None:
         winnings = None
         headers = {'Title':'Team Lotto Loss','Tags':'disappointed'}
 
-    print(f'{ournumbers} - {message}')
     
-    posturl = 'https://ntfy.samarnerich.tech/sam'
+    posturl = getposturl()
     data = f'{message} Winnings - {winnings}'
     requests.post(url=posturl, data=data, headers=headers)
     
@@ -102,6 +100,19 @@ def getwinnings(division:int, results:dict, type:str) -> float:
         else:
             continue
     
+def getposturl() -> str:
+    filename = 'posturl.txt'
+    if os.path.isfile(filename):
+        ...
+    else:
+        url = input('Enter the URL for the POST request: ')  
+        with open(filename,'w') as newfile:
+              newfile.write(url)
+    
+    with open(filename,'r') as file:
+        posturl = file.read()
+    return posturl
+
 def getlottonumbers() -> list[int]:
     filename = 'lottonumbers.txt'
     if os.path.isfile(filename):
