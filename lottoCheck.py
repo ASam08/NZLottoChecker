@@ -2,11 +2,11 @@ import requests
 import os.path
 
 class NotLottoNumber(Exception):
-    "Raised when a number is not a valid lotto number"
+    'Raised when a number is not a valid lotto number'
     pass
 
 class LottoAlreadyExists(Exception):
-    "Raised when a duplicate lotto number is selected"
+    'Raised when a duplicate lotto number is selected'
     pass
 
 
@@ -45,34 +45,34 @@ def checknumbers(results:dict) -> None:
             message = f'Not a winner this time, no numbers matched.'
             division = 8
         case 1:
-            message = f'Not a winner this time, number matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
+            message = f'Not a winner this time, number matched: {', '.join(map(str,winningnumbers))}{bonusballmessage}.'
             division = 8
         case 2:
-            message = f'Not a winner this time, numbers matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
+            message = f'Not a winner this time, numbers matched: {', '.join(map(str,winningnumbers))}{bonusballmessage}.'
             division = 8
         case 3:
             if bonusballwinner:
-                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {', '.join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
                 division = 6
             else:
-                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {", ".join(map(str,winningnumbers))}.'
+                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {', '.join(map(str,winningnumbers))}.'
                 division = 7
         case 4:
             if bonusballwinner:
-                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {', '.join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
                 division = 4
             else:
-                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {", ".join(map(str,winningnumbers))}.'
+                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {', '.join(map(str,winningnumbers))}.'
                 division = 5
         case 5:
             if bonusballwinner:
-                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {', '.join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
                 division = 2
             else:
-                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {", ".join(map(str,winningnumbers))}.'
+                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {', '.join(map(str,winningnumbers))}.'
                 division = 3
         case 6:
-            message = f'Winner! You got {winningnumberscount} numbers! Numbers matched: {", ".join(map(str,winningnumbers))}.'
+            message = f'Winner! You got {winningnumberscount} numbers! Numbers matched: {', '.join(map(str,winningnumbers))}.'
             division = 1
     if division < 7:
         winnings = getwinnings(division, results,'lotto')*10
@@ -80,7 +80,7 @@ def checknumbers(results:dict) -> None:
         winnings = f'${winnings:,.2f}'
         headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
     elif division == 7:
-        winnings = f'40 Bonus Tickets and ${getwinnings(division, results, "powerBall"):,.2f}'
+        winnings = f'40 Bonus Tickets and ${getwinnings(division, results, 'powerBall'):,.2f}'
         headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
     else:
         winnings = None
@@ -144,9 +144,9 @@ def userinputnumbers() -> list[int]:
             else:
                 raise NotLottoNumber
         except ValueError:
-            print("This is not an integer. Please enter a valid integer.")
+            print('This is not an integer. Please enter a valid integer.')
         except NotLottoNumber:
-            print("This is not a valid lotto number. Please enter a number between 1 and 40.")
+            print('This is not a valid lotto number. Please enter a number between 1 and 40.')
         except LottoAlreadyExists:
             print('You have already chosen this number. Please enter a unique number.')
     return numbers
@@ -156,5 +156,5 @@ def main() -> None:
     checknumbers(resultsJson)
     
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
