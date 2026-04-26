@@ -1,3 +1,5 @@
+from datetime import datetime
+import time
 import requests
 import os.path
 
@@ -15,11 +17,30 @@ def getlottoresults() -> dict:
     with requests.get(url) as response:
         if response.status_code == 200:
             print(f'Response ok')
-            resultsJson = response.json()
-            return resultsJson
+            dataDate = response.json()['lotto']['drawDate']
+            checks:int = 0
+            while checks < 5:
+                if dataDate == str(datetime.now().date()):
+                    print(f'Correct draw date')
+                    resultsJson = response.json()
+                    return resultsJson
+                else:
+                    print(f'Incorrect draw date, retrying in 5 minutes...')
+                    checks += 1
+                    time.sleep(300)
+                    with requests.get(url) as response:
+                        dataDate = response.json()['lotto']['drawDate']
+            
+            posturl = getposturl()
+            data = 'Draw date did not match expected date after 5 attempts. Please check the API or try again later.'
+            headers = {'Title':'Team Lotto Error','Tags':'warning'} 
+            requests.post(url=posturl, data=data, headers=headers)
+            raise ValueError("Draw date did not match expected date after 5 attempts. Please check the API or try again later.")
+
+
         else:
             print(f'Response failed')
-
+            raise ValueError(f"Failed to fetch lotto results: HTTP {response.status_code}")
    
 def checknumbers(results:dict) -> None:
     winningnumberscount = 0
@@ -39,48 +60,52 @@ def checknumbers(results:dict) -> None:
     else:
         bonusballwinner = False
         bonusballmessage = ''
-    
+
+    message = ''
+    division = 0
+
     match winningnumberscount:
         case 0:
             message = f'Not a winner this time, no numbers matched.'
             division = 8
         case 1:
-            message = f'Not a winner this time, number matched: {', '.join(map(str,winningnumbers))}{bonusballmessage}.'
+            message = f'Not a winner this time, number matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
             division = 8
         case 2:
-            message = f'Not a winner this time, numbers matched: {', '.join(map(str,winningnumbers))}{bonusballmessage}.'
+            message = f'Not a winner this time, numbers matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
             division = 8
         case 3:
             if bonusballwinner:
-                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {', '.join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
                 division = 6
             else:
-                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {', '.join(map(str,winningnumbers))}.'
+                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {", ".join(map(str,winningnumbers))}.'
                 division = 7
         case 4:
             if bonusballwinner:
-                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {', '.join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
                 division = 4
             else:
-                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {', '.join(map(str,winningnumbers))}.'
+                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {", ".join(map(str,winningnumbers))}.'
                 division = 5
         case 5:
             if bonusballwinner:
-                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {', '.join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
                 division = 2
             else:
-                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {', '.join(map(str,winningnumbers))}.'
+                message = f'Winner! You got {winningnumberscount} numbers but not the bonus ball. Numbers matched: {", ".join(map(str,winningnumbers))}.'
                 division = 3
         case 6:
-            message = f'Winner! You got {winningnumberscount} numbers! Numbers matched: {', '.join(map(str,winningnumbers))}.'
+            message = f'Winner! You got {winningnumberscount} numbers! Numbers matched: {", ".join(map(str,winningnumbers))}.'
             division = 1
+            
     if division < 7:
         winnings = getwinnings(division, results,'lotto')*10
         winnings = winnings + getwinnings(division, results, 'powerBall')
         winnings = f'${winnings:,.2f}'
         headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
     elif division == 7:
-        winnings = f'40 Bonus Tickets and ${getwinnings(division, results, 'powerBall'):,.2f}'
+        winnings = f'40 Bonus Tickets and ${getwinnings(division, results, "powerBall"):,.2f}'
         headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
     else:
         winnings = None
@@ -99,6 +124,8 @@ def getwinnings(division:int, results:dict, type:str) -> float:
             return winnings
         else:
             continue
+    
+    raise ValueError(f"Division {division} not found in {type} results")
     
 def getposturl() -> str:
     filename = 'posturl.txt'
