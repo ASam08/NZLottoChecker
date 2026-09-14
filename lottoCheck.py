@@ -67,13 +67,17 @@ def checknumbers(results:dict) -> None:
     match winningnumberscount:
         case 0:
             message = f'Not a winner this time, no numbers matched.'
-            division = 8
+            division = 999
         case 1:
             message = f'Not a winner this time, number matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
-            division = 8
+            division = 999
         case 2:
-            message = f'Not a winner this time, numbers matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
-            division = 8
+            if bonusballwinner:
+                message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
+                division = 8
+            else:
+                message = f'Not a winner this time, numbers matched: {", ".join(map(str,winningnumbers))}{bonusballmessage}.'
+                division = 999
         case 3:
             if bonusballwinner:
                 message = f'Winner! You got {winningnumberscount} numbers and the Bonus Ball! Numbers matched: {", ".join(map(str,winningnumbers))} & Bonus Ball {bonusball}.'
@@ -100,12 +104,15 @@ def checknumbers(results:dict) -> None:
             division = 1
             
     if division < 7:
-        winnings = getwinnings(division, results,'lotto')*10
+        winnings = getwinnings(division, results,'lotto')*14
         winnings = winnings + getwinnings(division, results, 'powerBall')
         winnings = f'${winnings:,.2f}'
         headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
     elif division == 7:
-        winnings = f'40 Bonus Tickets and ${getwinnings(division, results, "powerBall"):,.2f}'
+        winnings = f'52 Bonus Tickets and ${getwinnings(division, results, "powerBall"):,.2f}'
+        headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
+    elif division == 8:
+        winnings = f'${getwinnings(division, results, "powerBall"):,.2f}'
         headers = {'Title':'Team Lotto Winner!','Tags':'moneybag'}
     else:
         winnings = None
